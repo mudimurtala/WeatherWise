@@ -1,13 +1,19 @@
-const { Sequelize } = require('sequelize');
+const express = require('express');
+const sequelize = require('./models');
+const weatherRoutes = require('./routes/weatherRoutes');
+const soilRoutes = require('./routes/soilRoutes');
 require('dotenv').config();
 
-const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
-    host: process.env.DB_HOST,
-    dialect: 'mysql'
-});
+const app = express();
+const PORT = process.env.PORT || 5000;
 
-sequelize.authenticate()
-    .then(() => console.log('Database connected...'))
-    .catch(err => console.log('Error: ' + err));
+app.use(express.json());
 
-module.exports = sequelize;
+app.use('/api', weatherRoutes);
+app.use('/api', soilRoutes);
+
+sequelize.sync().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}).catch(err => console.log('Error: ' + err));
